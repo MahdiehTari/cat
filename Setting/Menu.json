@@ -1,0 +1,43 @@
+[
+  {
+    "GroupName": "Hardware",
+    "GroupMethods": [
+      "Show Full Hardware Details",
+      "Show CPU",
+      "Show RAM",
+      "Show Storage"
+    ]
+  },
+  {
+    "GroupName": "Software",
+    "GroupMethods": [
+      "Show Software's",
+      "Install Software",
+      "Uninstall Software"
+    ]
+  },
+  {
+    "GroupName": "Network",
+    "GroupMethods": [
+      "Check Network Connection",
+      "Check Internet Connection",
+      "Run Speed Test"
+    ]
+  },
+  {
+    "GroupName": "Tomato Setting",
+    "GroupMethods": [
+      "Select Target",
+      "Save Credential",
+      "Change Report Save Path"
+    ]
+  },
+  {
+    "GroupName": "About",
+    "GroupMethods": [
+      "Show Developer Info",
+      "Show Document",
+      "Contact with Developer"
+    ]
+  }
+]
