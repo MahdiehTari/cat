@@ -2,42 +2,90 @@
   {
     "GroupName": "Hardware",
     "GroupMethods": [
-      "Show Full Hardware Details",
-      "Show CPU",
-      "Show RAM",
-      "Show Storage"
+      {
+        "Name": "Show Full Hardware Details",
+        "PathScript": "./Scripts/ShowFullHardwareInfo.ps1"
+      },
+      {
+        "Name": "Show CPU",
+        "PathScript": "./Scripts/ShowCPU.ps1"
+      },
+      {
+        "Name": "Show RAM",
+        "PathScript": "./Scripts/ShowRAM.ps1"
+      },
+      {
+        "Name": "Show Storage",
+        "PathScript": "./Scripts/ShowStorage.ps1"
+      }
     ]
   },
   {
     "GroupName": "Software",
     "GroupMethods": [
-      "Show Software's",
-      "Install Software",
-      "Uninstall Software"
+      {
+        "Name": "Show Software",
+        "PathScript": "./Scripts/ShowSoftware.ps1"
+      },
+      {
+        "Name": "InstallSoftware",
+        "PathScript": "./Scripts/ShowStorage.ps1"
+      },
+      {
+        "Name": "Uninstall Software",
+        "PathScript": "./Scripts/UninstallSoftware.ps1"
+      }
     ]
   },
   {
     "GroupName": "Network",
     "GroupMethods": [
-      "Check Network Connection",
-      "Check Internet Connection",
-      "Run Speed Test"
+      {
+        "Name": "Check Network Connection",
+        "PathScript": "./Scripts/CheckNetworkConnection.ps1"
+      },
+      {
+        "Name": "Check Internet Connection",
+        "PathScript": "./Scripts/CheckInternetConnection.ps1"
+      },
+      {
+        "Name": "Run Speed Test",
+        "PathScript": "./Scripts/RunSpeedTest.ps1"
+      }
     ]
   },
   {
     "GroupName": "Tomato Setting",
     "GroupMethods": [
-      "Select Target",
-      "Save Credential",
-      "Change Report Save Path"
+      {
+        "Name": "Select Target",
+        "PathScript": "./Scripts/SelectTarget.ps1"
+      },
+      {
+        "Name": "Save Credential",
+        "PathScript": "./Scripts/SaveCredential.ps1"
+      },
+      {
+        "Name": "Change Report Save Path",
+        "PathScript": "./Scripts/ChangeReportSavePath.ps1"
+      }
     ]
   },
   {
     "GroupName": "About",
     "GroupMethods": [
-      "Show Developer Info",
-      "Show Document",
-      "Contact with Developer"
+      {
+        "Name": "Show Developer Info",
+        "PathScript": "./Scripts/ShowDeveloperInfo.ps1"
+      },
+      {
+        "Name": "Show Document",
+        "PathScript": "./Scripts/ShowDocument.ps1"
+      },
+      {
+        "Name": "Contact With Developer",
+        "PathScript": "./Scripts/ContactWithDeveloper.ps1"
+      }
     ]
   }
 ]
