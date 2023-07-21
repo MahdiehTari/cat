@@ -164,7 +164,7 @@ function LoadMenuItem {
         foreach ($Method in $Group.GroupMethods) {
             $CountMethod += 1
             Write-Host "  [$($CountMethod)] $($Method.Name)"
-            $MethodPathScriptList += ($Method.PathScript)
+            $script:MethodPathScriptList += ($Method.PathScript)
         }
         Write-Host ""
     }
@@ -174,27 +174,65 @@ function LoadMenuItem {
 
 function SelectMenuItem {
     param(
-        [string]$CountItem
+        [int]$CountItem
     )
-    $SeletedItem = ((Read-Host "Enter Number Item [1 ~ $($CountItem)] ") -as [int])
-    if($null -ne $SeletedItem){
-        if((1 -ge $SeletedItem) -and ($SeletedItem -le $CountItem))
-        {
-            RunSeletedItem -ItemNumber $SeletedItem 
-        }else{
-            Write-Host "[Error] + $($SeletedItem) ! "
+    $RunLoop = $true
+    while ($RunLoop) {
+
+        PromptExitMessage
+        $SelectedItem = (Read-Host "Enter Number Item [1 ~ $($CountItem)] ")
+
+        if (($SelectedItem.ToLower() -eq "exit") -or ($SelectedItem.ToLower() -eq "cancel") -or ($SelectedItem.ToLower() -eq "0") -or ($SelectedItem.ToLower() -eq "clear")) {
+            return $false
         }
-    }else{
-        Write-Host ""
+
+        if ($null -ne ($SelectedItem -as [int])) {
+            $SelectedItem = [int]::Parse($SelectedItem)
+            if (($SelectedItem -ge 1) -and ($SelectedItem -le $CountItem)) {
+
+                RunSelectedItem -ItemNumber 11
+                $RunLoop = $false
+            }
+            else {
+                Write-Host ""
+                Write-Host "[Error] $($SelectedItem) is Not in Menu !" -ForegroundColor Red
+                Write-Host ""
+            }
+        }
+        else {
+            Write-Host ""
+            Write-Host "[Error] $($SelectedItem) is Not Number !" -ForegroundColor Red
+            Write-Host ""
+        }
     }
 
-    LoadMenuItem
+    return $true
+
 }
 
-function RunSeletedItem {
-    param ()
-    
+function PromptExitMessage {
+    Write-Host "For " -NoNewline
+    Write-Host "Exit" -NoNewline -ForegroundColor Blue
+    Write-Host " , Type " -NoNewline
+    Write-Host "Exit" -NoNewline -ForegroundColor Blue
+    Write-Host " or " -NoNewline
+    Write-Host "Cancel" -NoNewline -ForegroundColor Blue
+    Write-Host " or " -NoNewline
+    Write-Host "Clear" -NoNewline -ForegroundColor Blue
+    Write-Host " or " -NoNewline
+    Write-Host "0" -NoNewline -ForegroundColor Blue
+    Write-Host " :)"
 }
+
+function RunSelectedItem {
+    param (
+        [int]$ItemNumber
+    )
+
+    Write-Host "In RunSelectedItem"
+    $ItemNumber | Get-Member
+}
+
 
 #---------------------------------------------
 # Main Program
@@ -202,13 +240,14 @@ function RunSeletedItem {
 function Main {
     ShowWellcome
 
-    $login = Start-Loging
+    $login = 1 # Start-Loging
 
     if ($login -eq 1) {
 
         ClearHostTimed
 
-        while ($true) {
+        $RunLoop = $true
+        while ($RunLoop) {
 
             ShowWellcomeMenu
 
@@ -216,10 +255,10 @@ function Main {
             ShowTargetInfo
 
             $CountItem = LoadMenuItem
+            
+            $RunLoop = SelectMenuItem -CountItem $CountItem
 
-            SelectMenuItem -CountItem $CountItem
 
-            Read-Host
         }
     }
 }
