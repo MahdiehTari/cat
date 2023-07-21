@@ -10,8 +10,8 @@ $script:Credential = 0
 $script:TargetUsername = "NAME.FAMILY"
 $script:TargetComputername = "Undefined"
 $script:TargetIP = "Undefined"
-$script:TargetStatusNetwork = $false
-$script:TargetStatusInternet = $false
+$script:TargetStatusNetwork = "Undefined"
+$script:TargetStatusInternet = "Undefined"
 # Menu
 $script:MethodPathScriptList = @()
 
@@ -56,7 +56,7 @@ function ShowSuccessLoging {
 }
 
 function ClearHostTimed {
-    Start-Sleep -Seconds 2
+    Start-Sleep -Seconds 0
     Clear-Host
 }
 
@@ -94,27 +94,6 @@ function Start-Loging {
     }
 }
 
-
-function LoadMenuItem {
-    $JSONString = Get-Content -Raw -Path "./Setting/Menu.json"
-    $MenuGroups = ConvertFrom-Json $JSONString
-    $CountMethod = 1
-    
-    foreach ($Group in $MenuGroups) {
-        Write-Host "(*) $($Group.GroupName)"
-        foreach ($Method in $Group.GroupMethods) {
-            Write-Host "  [$($CountMethod)] $($Method.Name)"
-            $CountMethod += 1
-            $MethodPathScriptList += ($Method.PathScript)
-        }
-        Write-Host ""
-    }
-}
-
-function SeletMenuItem {
-    
-}
-
 function ShowWellcomeMenu {
     $CurrectHour = (Get-Date).Hour
     $MessageFilePath = "./HourMessage/Default.txt"
@@ -130,13 +109,91 @@ function ShowWellcomeMenu {
     }
     $MessageString = Get-Content -Path $MessageFilePath
     Write-Host $MessageString.Replace("{{Firstname}}", $script:Firstname) -ForegroundColor Yellow
+    Write-Host ""
 }
 
 function ShowTargetInfo {
-    if($script:TargetUsername -ne "NAME.FAMILY")
-    {
-        
+    if ($script:TargetUsername -ne "NAME.FAMILY") {
+        # Show General Info
+        Write-Host "[Tartget] Username     : $($script:TargetUsername)" -ForegroundColor Green
+        Write-Host "[Tartget] Computername : $($script:TargetComputername)" -ForegroundColor Green
+        # Show Status Network & Internet
+        if ($script:TargetIP -ne "") {
+            Write-Host "[Tartget] IPv4         : " -NoNewline -ForegroundColor Yellow
+            Write-Host "$($script:TargetIP)" -ForegroundColor Green
+
+            Write-Host "[Tartget] Network      : " -NoNewline -ForegroundColor Yellow
+            if ($script:TargetStatusNetwork -eq "Online") {
+                Write-Host "$($script:TargetStatusNetwork)" -ForegroundColor Green
+            }
+            else {
+                Write-Host "$($script:TargetStatusNetwork)" -ForegroundColor Red
+            }
+
+            Write-Host "[Tartget] Internet     : " -NoNewline -ForegroundColor Yellow
+            if ($script:TargetStatusInternet -eq "Online") {
+                Write-Host "$($script:TargetStatusInternet)" -ForegroundColor Green
+            }
+            else {
+                Write-Host "$($script:TargetStatusInternet)" -ForegroundColor Red
+            }
+        }
+        else {
+            Write-Host "[Tartget] IPv4         : $($script:TargetIP)" -NoNewline -ForegroundColor Yellow
+            Write-Host "$($script:TargetIP)" -ForegroundColor Blue
+            Write-Host "[Tartget] Network      : $($script:TargetStatusNetwork)" -NoNewline -ForegroundColor Yellow
+            Write-Host "$($script:TargetStatusNetwork)" -ForegroundColor Blue
+            Write-Host "[Tartget] Internet     : $($script:TargetStatusInternet)" -NoNewline -ForegroundColor Yellow
+            Write-Host "$($script:TargetStatusInternet)" -ForegroundColor Blue
+        }
     }
+    else {
+        Write-Host "[Tartget] Not Select Target !" -ForegroundColor Yellow
+    }
+    
+    Write-Host ""
+}
+
+function LoadMenuItem {
+    $JSONString = Get-Content -Raw -Path "./Setting/Menu.json"
+    $MenuGroups = ConvertFrom-Json $JSONString
+    $CountMethod = 0
+    
+    foreach ($Group in $MenuGroups) {
+        Write-Host "(*) $($Group.GroupName)"
+        foreach ($Method in $Group.GroupMethods) {
+            $CountMethod += 1
+            Write-Host "  [$($CountMethod)] $($Method.Name)"
+            $MethodPathScriptList += ($Method.PathScript)
+        }
+        Write-Host ""
+    }
+
+    return $CountMethod
+}
+
+function SelectMenuItem {
+    param(
+        [string]$CountItem
+    )
+    $SeletedItem = ((Read-Host "Enter Number Item [1 ~ $($CountItem)] ") -as [int])
+    if($null -ne $SeletedItem){
+        if((1 -ge $SeletedItem) -and ($SeletedItem -le $CountItem))
+        {
+            RunSeletedItem -ItemNumber $SeletedItem 
+        }else{
+            Write-Host "[Error] + $($SeletedItem) ! "
+        }
+    }else{
+        Write-Host ""
+    }
+
+    LoadMenuItem
+}
+
+function RunSeletedItem {
+    param ()
+    
 }
 
 #---------------------------------------------
@@ -158,9 +215,9 @@ function Main {
             # ShowLocalNetworkIdentify
             ShowTargetInfo
 
-            LoadMenuItem
+            $CountItem = LoadMenuItem
 
-            SelectMenuItem
+            SelectMenuItem -CountItem $CountItem
 
             Read-Host
         }
