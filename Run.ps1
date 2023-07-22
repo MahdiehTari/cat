@@ -176,6 +176,7 @@ function SelectMenuItem {
     param(
         [int]$CountItem
     )
+    $ReturnValue = 0
     $RunLoop = $true
     while ($RunLoop) {
 
@@ -183,14 +184,13 @@ function SelectMenuItem {
         $SelectedItem = (Read-Host "Enter Number Item [1 ~ $($CountItem)] ")
 
         if (($SelectedItem.ToLower() -eq "exit") -or ($SelectedItem.ToLower() -eq "cancel") -or ($SelectedItem.ToLower() -eq "0") -or ($SelectedItem.ToLower() -eq "clear")) {
-            return $false
+            $ReturnValue = $false
+            $RunLoop = $false
         }
 
         if ($null -ne ($SelectedItem -as [int])) {
-            $SelectedItem = [int]::Parse($SelectedItem)
-            if (($SelectedItem -ge 1) -and ($SelectedItem -le $CountItem)) {
-
-                RunSelectedItem -ItemNumber 11
+            if ((($SelectedItem -as [int]) -ge 1) -and (($SelectedItem -as [int]) -le $CountItem)) {
+                $ReturnValue = $SelectedItem
                 $RunLoop = $false
             }
             else {
@@ -206,7 +206,7 @@ function SelectMenuItem {
         }
     }
 
-    return $true
+    return $ReturnValue
 
 }
 
@@ -226,11 +226,15 @@ function PromptExitMessage {
 
 function RunSelectedItem {
     param (
-        [int]$ItemNumber
+        $ItemNumber
     )
 
+    ClearHostTimed
     Write-Host "In RunSelectedItem"
-    $ItemNumber | Get-Member
+    $ScriptContent = Get-Content -Path ($script:MethodPathScriptList[($ItemNumber -as [int]) - 1])
+    $ScriptBlock = [scriptblock]::Create($ScriptContent)
+    & $ScriptBlock  
+    Read-Host
 }
 
 
@@ -256,9 +260,14 @@ function Main {
 
             $CountItem = LoadMenuItem
             
-            $RunLoop = SelectMenuItem -CountItem $CountItem
+            $SelectedItem = SelectMenuItem -CountItem $CountItem
 
-
+            if ($SelectedItem -eq $false) {
+                $RunLoop = $false
+            }
+            else {
+                RunSelectedItem -ItemNumber $SelectedItem
+            }
         }
     }
 }
