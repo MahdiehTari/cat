@@ -18,7 +18,11 @@ function PromptError {
     Write-Host ""
 }
 
-$TargetInfo = Import-Csv -Path ".\Setting\TargetInfo.csv"
+
+Test-Path -Path ".\Setting\TargetInfo.csv"
+
+$TargetInfo = Import-Csv -Path ".\Setting\TargetInfo.csv" -Delimiter ","
+
 
 if ($null -ne $TargetInfo) {
     Write-Host ""

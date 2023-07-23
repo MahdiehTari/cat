@@ -231,10 +231,11 @@ function RunSelectedItem {
 
     ClearHostTimed
     Write-Host "In RunSelectedItem"
-    $ScriptContent = Get-Content -Path ($script:MethodPathScriptList[($ItemNumber -as [int]) - 1])
-    $ScriptBlock = [scriptblock]::Create($ScriptContent)
-    & $ScriptBlock  
+    $ScriptContent = Get-Content -Path ($script:MethodPathScriptList[($ItemNumber -as [int]) - 1]) -Raw
+    $ScriptBlock = [ScriptBlock]::Create($ScriptContent)
+    & $ScriptBlock
     Read-Host
+    ClearHostTimed
 }
 
 

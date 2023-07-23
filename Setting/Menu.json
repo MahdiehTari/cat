@@ -34,6 +34,14 @@
       {
         "Name": "Uninstall Software",
         "PathScript": "./Scripts/UninstallSoftware.ps1"
+      },
+      {
+        "Name": "Active Office",
+        "PathScript": "./Scripts/ActiveOffice.ps1"
+      },
+      {
+        "Name": "Active Windows",
+        "PathScript": "./Scripts/ActiveWindows.ps1"
       }
     ]
   },
