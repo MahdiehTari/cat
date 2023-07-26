@@ -98,17 +98,15 @@ while ($RunLoop) {
             Write-Host "[INFO]    : Sreach Useranme ..." -ForegroundColor Yellow
 
             try {
-                $TargetData = Get-ADComputer -Filter "Description -Like '$($Identifier)'" -Properties * | Select-Object Description , Name , IPv4Address
+                $TargetData = Get-ADComputer -Filter "Description -Like '*$($Identifier)*'" -Properties * | Select-Object Description , Name , IPv4Address
             }
             catch {
                 Write-Host "[ERROR]   : Script Crashed : $($_.Exception.Message)" -ForegroundColor Red
             }
 
-            # if ($null -ne $TargetData) {
-            if ($true) {
+            if ($null -ne $TargetData) {
                 
-                # if ($TargetData.Length -eq 1) {
-                if ($true) {
+                if ($TargetData.Length -eq 1) {
 
                     Write-Host "[SUCCESS] : Target Found ! Username : $($TargetData.Description) , Computername : $($TargetData.Name) , IPv4 : $($TargetData.IPv4Address)" -ForegroundColor Green
 
@@ -116,6 +114,7 @@ while ($RunLoop) {
                     $ResponseAccept = Read-Host " "
 
                     if (($ResponseAccept.ToLower() -eq "test") -or ($ResponseAccept.ToLower() -eq "yt")) {
+
                         Write-Host "[INFO]    : Accepted Target !" -ForegroundColor Yellow
                         Write-Host "[INFO]    : $($TargetData.Name) Network Testing ..." -ForegroundColor Yellow
                         if (Test-Connection -ComputerName $TargetData.Name -Quiet) {
@@ -127,22 +126,37 @@ while ($RunLoop) {
                             $TargetInfo.Network = "Offline"    
                         }
                         #
+                        if ($null -ne $TargetData.Description) {
+                            $TargetInfo.Username = $TargetData.Description
+                        }
+                        else {
+                            $TargetInfo.Username = "NAME.FAMILY"
+                        }
+                        #
                         if ($null -ne $TargetData.Name) {
                             $TargetInfo.ComputerName = $TargetData.Name
                         }
                         else {
                             $TargetInfo.ComputerName = "Undefined"
                         }
-
+                        #
                         if ($null -ne $TargetData.IPv4Address) {
-                            $TargetInfo.IPv4 = $TargetData.IPv4Address
+                            $TargetInfo.IP = $TargetData.IPv4Address
                         }
                         else {
-                            $TargetInfo.IPv4 = "Undefined"
+                            $TargetInfo.IP = "Undefined"
                         }
                     }
                     elseif (($ResponseAccept.ToLower() -eq "yes") -or ($ResponseAccept.ToLower() -eq "y")) {
                         Write-Host "[INFO]    : Accepted Target !" -ForegroundColor Yellow
+                        
+                        if ($null -ne $TargetData.Description) {
+                            $TargetInfo.Username = $TargetData.Description
+                        }
+                        else {
+                            $TargetInfo.Username = "NAME.FAMILY"
+                        }
+
                         if ($null -ne $TargetData.Name) {
                             $TargetInfo.ComputerName = $TargetData.Name
                         }
@@ -151,24 +165,106 @@ while ($RunLoop) {
                         }
 
                         if ($null -ne $TargetData.IPv4Address) {
-                            $TargetInfo.IPv4 = $TargetData.IPv4Address
+                            $TargetInfo.IP = $TargetData.IPv4Address
                         }
                         else {
-                            $TargetInfo.IPv4 = "Undefined"
+                            $TargetInfo.IP = "Undefined"
                         }
                     }
                     else {
                         Write-Host "[INFO]    : Don't Accepted Target !" -ForegroundColor Yellow
-                        
                     }
 
                 }
                 else {
                     Write-Host "[INFO]    : Find $($TargetData.Length) Username Like Your Input" -ForegroundColor Yellow
-                    Write-Host 
+
+                    Write-Host
                     for ($index = 0; $index -lt $TargetData.Length; $index += 1) {
-                        
+                        Write-Host "[$($index + 1)] Username : $($TargetData[$index].Description) , Computername : $($TargetData[$index].Name) , IPv4 : $($TargetData[$index].IPv4Address)"
                     }
+                    Write-Host
+
+                    Write-Host "[HELP]    : Select Currect Target From List !"
+                    MakeColorPrompt -Text $ColorTextData.PromptHelpExit.Text -ConfigText $ColorTextData.PromptHelpExit.ConfigText
+                    $RunLoop1 = $true
+                    while ($RunLoop1) {
+                        Write-Host "[INPUT]   : Enter Target Number " -NoNewline
+                        $TargetSelectedNumber = Read-Host " "
+                        if ($null -ne ($TargetSelectedNumber -as [int])) {
+                            if ((($TargetSelectedNumber -as [int]) -gt 0) -and (($TargetSelectedNumber -as [int]) -le $TargetData.Length)) {
+
+                                $TargetDataSelected = $TargetData[]
+
+                                MakeColorPrompt -Text $ColorTextData.PromptAccept.Text -ConfigText $ColorTextData.PromptAccept.ConfigText -NoNewLine
+                                $ResponseAccept = Read-Host " "
+            
+                                if (($ResponseAccept.ToLower() -eq "test") -or ($ResponseAccept.ToLower() -eq "yt")) {
+            
+                                    Write-Host "[INFO]    : Accepted Target !" -ForegroundColor Yellow
+                                    Write-Host "[INFO]    : $($TargetData.Name) Network Testing ..." -ForegroundColor Yellow
+                                    if (Test-Connection -ComputerName $TargetData.Name -Quiet) {
+                                        Write-Host "[SUCCESS] : Target is Online Now !" -ForegroundColor Green
+                                        $TargetInfo.Network = "Online"
+                                    }
+                                    else {
+                                        Write-Host "[FAILED]  : Target is Offline Now !" -ForegroundColor Red
+                                        $TargetInfo.Network = "Offline"    
+                                    }
+                                    #
+                                    if ($null -ne $TargetData.Description) {
+                                        $TargetInfo.Username = $TargetData.Description
+                                    }
+                                    else {
+                                        $TargetInfo.Username = "NAME.FAMILY"
+                                    }
+                                    #
+                                    if ($null -ne $TargetData.Name) {
+                                        $TargetInfo.ComputerName = $TargetData.Name
+                                    }
+                                    else {
+                                        $TargetInfo.ComputerName = "Undefined"
+                                    }
+                                    #
+                                    if ($null -ne $TargetData.IPv4Address) {
+                                        $TargetInfo.IP = $TargetData.IPv4Address
+                                    }
+                                    else {
+                                        $TargetInfo.IP = "Undefined"
+                                    }
+                                }
+                                elseif (($ResponseAccept.ToLower() -eq "yes") -or ($ResponseAccept.ToLower() -eq "y")) {
+                                    Write-Host "[INFO]    : Accepted Target !" -ForegroundColor Yellow
+                                    
+                                    if ($null -ne $TargetData.Description) {
+                                        $TargetInfo.Username = $TargetData.Description
+                                    }
+                                    else {
+                                        $TargetInfo.Username = "NAME.FAMILY"
+                                    }
+            
+                                    if ($null -ne $TargetData.Name) {
+                                        $TargetInfo.ComputerName = $TargetData.Name
+                                    }
+                                    else {
+                                        $TargetInfo.ComputerName = "Undefined"
+                                    }
+            
+                                    if ($null -ne $TargetData.IPv4Address) {
+                                        $TargetInfo.IP = $TargetData.IPv4Address
+                                    }
+                                    else {
+                                        $TargetInfo.IP = "Undefined"
+                                    }
+                                }
+                                else {
+                                    Write-Host "[INFO]    : Don't Accepted Target !" -ForegroundColor Yellow
+                                }
+                            }
+                        }
+                    }
+                    
+                    Read-Host 
                 }
             }
             else {
@@ -177,7 +273,6 @@ while ($RunLoop) {
             }
 
             $RunLoop = $false
-            Write-Host ""
             break
         }
 
@@ -207,4 +302,12 @@ while ($RunLoop) {
     }
 }
 
-Export-Csv -Path $TargetInfoFilePath -InputObject $TargetInfo -NoTypeInformation
+try {
+    Export-Csv -Path $TargetInfoFilePath -InputObject $TargetInfo -NoTypeInformation
+    Write-Host "[SUCCESS] : Target Data Saved !" -ForegroundColor Green
+}
+catch {
+    Write-Host "[FAILED]  : Target Data Not Saved : $($_.Exception.Message)" -ForegroundColor Red  
+}
+
+Write-Host ""
