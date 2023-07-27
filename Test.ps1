@@ -93,7 +93,17 @@ while ($RunLoop) {
     switch ($true) {
 
 
-        ($Identifier -match "\w+\.\w+") {
+        ($Identifier -match "(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}") {
+            Write-Host "Target IP : $($Identifier)"
+
+            $RunLoop = $false
+            break
+        }
+
+
+        ($Identifier -match "\w\.\w") {
+
+            
             Write-Host "[INFO]    : Target Username : $($Identifier)"
             Write-Host "[INFO]    : Sreach Useranme ..." -ForegroundColor Yellow
 
@@ -194,7 +204,7 @@ while ($RunLoop) {
                         if ($null -ne ($TargetSelectedNumber -as [int])) {
                             if ((($TargetSelectedNumber -as [int]) -gt 0) -and (($TargetSelectedNumber -as [int]) -le $TargetData.Length)) {
 
-                                $TargetDataSelected = $TargetData[]
+                                $TargetDataSelected = $TargetData[($TargetSelectedNumber -as [int])]
 
                                 MakeColorPrompt -Text $ColorTextData.PromptAccept.Text -ConfigText $ColorTextData.PromptAccept.ConfigText -NoNewLine
                                 $ResponseAccept = Read-Host " "
@@ -202,8 +212,8 @@ while ($RunLoop) {
                                 if (($ResponseAccept.ToLower() -eq "test") -or ($ResponseAccept.ToLower() -eq "yt")) {
             
                                     Write-Host "[INFO]    : Accepted Target !" -ForegroundColor Yellow
-                                    Write-Host "[INFO]    : $($TargetData.Name) Network Testing ..." -ForegroundColor Yellow
-                                    if (Test-Connection -ComputerName $TargetData.Name -Quiet) {
+                                    Write-Host "[INFO]    : $($TargetDataSelected.Name) Network Testing ..." -ForegroundColor Yellow
+                                    if (Test-Connection -ComputerName $TargetDataSelected.Name -Quiet) {
                                         Write-Host "[SUCCESS] : Target is Online Now !" -ForegroundColor Green
                                         $TargetInfo.Network = "Online"
                                     }
@@ -212,22 +222,22 @@ while ($RunLoop) {
                                         $TargetInfo.Network = "Offline"    
                                     }
                                     #
-                                    if ($null -ne $TargetData.Description) {
-                                        $TargetInfo.Username = $TargetData.Description
+                                    if ($null -ne $TargetDataSelected.Description) {
+                                        $TargetInfo.Username = $TargetDataSelected.Description
                                     }
                                     else {
                                         $TargetInfo.Username = "NAME.FAMILY"
                                     }
                                     #
-                                    if ($null -ne $TargetData.Name) {
-                                        $TargetInfo.ComputerName = $TargetData.Name
+                                    if ($null -ne $TargetDataSelected.Name) {
+                                        $TargetInfo.ComputerName = $TargetDataSelected.Name
                                     }
                                     else {
                                         $TargetInfo.ComputerName = "Undefined"
                                     }
                                     #
-                                    if ($null -ne $TargetData.IPv4Address) {
-                                        $TargetInfo.IP = $TargetData.IPv4Address
+                                    if ($null -ne $TargetDataSelected.IPv4Address) {
+                                        $TargetInfo.IP = $TargetDataSelected.IPv4Address
                                     }
                                     else {
                                         $TargetInfo.IP = "Undefined"
@@ -236,22 +246,22 @@ while ($RunLoop) {
                                 elseif (($ResponseAccept.ToLower() -eq "yes") -or ($ResponseAccept.ToLower() -eq "y")) {
                                     Write-Host "[INFO]    : Accepted Target !" -ForegroundColor Yellow
                                     
-                                    if ($null -ne $TargetData.Description) {
-                                        $TargetInfo.Username = $TargetData.Description
+                                    if ($null -ne $TargetDataSelected.Description) {
+                                        $TargetInfo.Username = $TargetDataSelected.Description
                                     }
                                     else {
                                         $TargetInfo.Username = "NAME.FAMILY"
                                     }
             
-                                    if ($null -ne $TargetData.Name) {
-                                        $TargetInfo.ComputerName = $TargetData.Name
+                                    if ($null -ne $TargetDataSelected.Name) {
+                                        $TargetInfo.ComputerName = $TargetDataSelected.Name
                                     }
                                     else {
                                         $TargetInfo.ComputerName = "Undefined"
                                     }
             
-                                    if ($null -ne $TargetData.IPv4Address) {
-                                        $TargetInfo.IP = $TargetData.IPv4Address
+                                    if ($null -ne $TargetDataSelected.IPv4Address) {
+                                        $TargetInfo.IP = $TargetDataSelected.IPv4Address
                                     }
                                     else {
                                         $TargetInfo.IP = "Undefined"
@@ -274,11 +284,7 @@ while ($RunLoop) {
 
             $RunLoop = $false
             break
-        }
 
-
-        ($Identifier -match "(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}") {
-            Write-Host "Target IP : $($Identifier)"
         }
 
 
@@ -289,7 +295,7 @@ while ($RunLoop) {
         }
 
 
-        (($Identifier.ToLower() -eq "exit") -or ($Identifier.ToLower() -eq "cancel")) {
+        (($Identifier.ToLower() -eq "exit") -or ($Identifier.ToLower() -eq "cancel") -or ($Identifier.ToLower() -eq "clear") -or ($Identifier.ToLower() -eq "0")) {
             Write-Host "[Warning] Dont Change Target Info !" -ForegroundColor Yellow
             $RunLoop = $false
             break
