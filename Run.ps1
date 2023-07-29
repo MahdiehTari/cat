@@ -245,7 +245,7 @@ function RunSelectedItem {
 function Main {
     ShowWellcome
 
-    $login = 1 # Start-Loging
+    $login = Start-Loging
 
     if ($login -eq 1) {
 
