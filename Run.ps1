@@ -1,6 +1,8 @@
 #---------------------------------------------
 # Data's 
 #---------------------------------------------
+# Organize Data Info
+$script:Domain = "part.local"
 # Admin Data Info
 $script:Username = "NAME.FAMILY"
 $script:Firstname = $Username.Split(".")[0]
@@ -56,13 +58,32 @@ function ShowSuccessLoging {
 }
 
 function ClearHostTimed {
-    Start-Sleep -Seconds 0
+    param(
+        [switch]$Lazy
+    )
+    if ($Lazy) {
+        Start-Sleep -Seconds 1
+    }
     Clear-Host
 }
 
-function Start-Loging {
+function Test-Credentials {
+    param (
+        [string]$Domain,
+        [string]$Username,
+        [string]$Password
+    )
+    # Load the necessary .NET assembly
+    Add-Type -AssemblyName System.DirectoryServices.AccountManagement
+    # Set up the context to connect to the domain
+    $context = New-Object System.DirectoryServices.AccountManagement.PrincipalContext([System.DirectoryServices.AccountManagement.ContextType]::Domain, $Domain)
+    # Try to validate the credentials
+    $isValid = $context.ValidateCredentials($Username, $Password)
+    # Return the result
+    return $isValid
+}
 
-    
+function Start-Loging {
 
     # Username 
     $Username = Read-Host "Username "
@@ -71,25 +92,35 @@ function Start-Loging {
         Exit
     }
     else {
-        $script:Username = $Username
+        $script:Username = $Username.Trim()
         $script:Firstname = $Username.Split(".")[0]
         $script:Lastname = $Username.Split(".")[1]
     }
 
     # Password
-    $Password = Read-Host "$($script:Username) | Password " -MaskInput | ConvertTo-SecureString -AsPlainText -Force
+    $Password = Read-Host "$($script:Username) | Password " -MaskInput
 
-    # Clear Host 
-    ClearHostTimed
-
-    # Create Credential
     try {
-        $script:Credential = New-Object System.Management.Automation.PSCredential($Username, $Password)
-        ShowSuccessLoging
-        return 1
+        
+        # Validate User 
+        if (Test-Credentials -Domain $script:Domain -Username $script:Username -Password $Password) {
+            # Create Credential
+            $script:Credential = New-Object System.Management.Automation.PSCredential($Username, $Password | ConvertTo-SecureString -AsPlainText -Force) 
+            ClearHostTimed
+            ShowSuccessLoging
+            ClearHostTimed -Lazy
+            return 1
+        }
+        else {
+            ClearHostTimed
+            ShowFailedLoging
+            Start-Loging
+        }
     }
     catch {
+        ClearHostTimed
         ShowFailedLoging
+        Write-Host "Error in Login  : $($_.Exception.Message)"
         Start-Loging
     }
 }
@@ -113,7 +144,10 @@ function ShowWellcomeMenu {
 }
 
 function ShowTargetInfo {
-    if ($script:TargetUsername -ne "NAME.FAMILY") {
+
+    LoadTargetInfo
+
+    if ($script:TargetUsername -ne "NAME.FAMILY" -or $script:TargetUsername -ne "NAME.FAMILY".ToLower()) {
         # Show General Info
         Write-Host "[Tartget] Username     : $($script:TargetUsername)" -ForegroundColor Green
         Write-Host "[Tartget] Computername : $($script:TargetComputername)" -ForegroundColor Green
@@ -154,22 +188,43 @@ function ShowTargetInfo {
     Write-Host ""
 }
 
-function LoadMenuItem {
-    $JSONString = Get-Content -Raw -Path "./Setting/Menu.json"
-    $MenuGroups = ConvertFrom-Json $JSONString
-    $CountMethod = 0
-    
-    foreach ($Group in $MenuGroups) {
-        Write-Host "(*) $($Group.GroupName)"
-        foreach ($Method in $Group.GroupMethods) {
-            $CountMethod += 1
-            Write-Host "  [$($CountMethod)] $($Method.Name)"
-            $script:MethodPathScriptList += ($Method.PathScript)
-        }
-        Write-Host ""
+function LoadTargetInfo {
+    try {
+        $Tar
     }
+    catch {
+        
+    }
+}
 
-    return $CountMethod
+function LoadMenuItem {
+
+    if (Test-Path -Path "./Scripts") {
+
+        $Groups = Get-ChildItem "./Scripts" | Sort-Object -Property Name | Select-Object Name , FullName
+        $CountMethod = 0
+
+        foreach ($Group in $Groups) {
+
+            $ShowNameGroup = $Group.Name.Split(".")[1]
+            Write-Host "(*) $($ShowNameGroup)"
+            $Scripts = Get-ChildItem $Group.FullName | Sort-Object -Property Name | Select-Object BaseName , FullName
+            
+            foreach ($Script in $Scripts) {
+                $CountMethod += 1
+                $ShowNameScript = $Script.BaseName.Split(".")[1]
+                Write-Host "  [$($CountMethod)] $($ShowNameScript)"
+                $script:MethodPathScriptList += ($Script.FullName)
+            }
+        }
+
+        Write-Host ""
+        return $CountMethod
+    }
+    else {
+        Write-Host "[Error] Cant Load Menu Item's , Look Path $((Get-Location).Path + "\Scripts")" -ForegroundColor Red
+        exit
+    }
 }
 
 function SelectMenuItem {
@@ -233,7 +288,8 @@ function RunSelectedItem {
     Write-Host "In RunSelectedItem"
     $ScriptContent = Get-Content -Path ($script:MethodPathScriptList[($ItemNumber -as [int]) - 1]) -Raw
     $ScriptBlock = [ScriptBlock]::Create($ScriptContent)
-    & $ScriptBlock
+    & $ScriptBlock -value "123"
+    Write-Host "[INFO] Script Closed , Press Any Key to Back Menu ..." -ForegroundColor Yellow 
     Read-Host
     ClearHostTimed
 }

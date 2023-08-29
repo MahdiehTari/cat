@@ -21,7 +21,7 @@ function Test-Credentials {
 # Usage example:
 $domain = "part.local"
 $username = "mahdi.najafzadeh"
-$password = "???"
+$password = "8ma8H3di3@"
 
 $isValidCredential = Test-Credentials -Domain $domain -Username $username -Password $password
 
