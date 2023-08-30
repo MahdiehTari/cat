@@ -340,8 +340,8 @@ function Main {
 
             ShowWellcomeMenu
 
-            # ShowLocalNetworkIdentify
             ShowUserInfo
+            
             ShowTargetInfo
 
             $CountItem = LoadMenuItem
