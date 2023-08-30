@@ -140,7 +140,6 @@ function ShowWellcomeMenu {
     }
     $MessageString = Get-Content -Path $MessageFilePath
     Write-Host $MessageString.Replace("{{Firstname}}", $script:Firstname) -ForegroundColor Yellow
-    Write-Host ""
 }
 
 function ShowTargetInfo {
@@ -149,8 +148,10 @@ function ShowTargetInfo {
 
     if ($script:TargetUsername -ne "NAME.FAMILY" -or $script:TargetUsername -ne "NAME.FAMILY".ToLower()) {
         # Show General Info
-        Write-Host "[Tartget] Username     : $($script:TargetUsername)" -ForegroundColor Green
-        Write-Host "[Tartget] Computername : $($script:TargetComputername)" -ForegroundColor Green
+        Write-Host "[Tartget] Username     : " -NoNewline -ForegroundColor Yellow
+        Write-host "$($script:TargetUsername)" -ForegroundColor Green
+        Write-Host "[Tartget] Computername : " -NoNewline -ForegroundColor Yellow
+        Write-host "$($script:TargetComputername)" -ForegroundColor Green
         # Show Status Network & Internet
         if ($script:TargetIP -ne "") {
             Write-Host "[Tartget] IPv4         : " -NoNewline -ForegroundColor Yellow
@@ -190,10 +191,22 @@ function ShowTargetInfo {
 
 function LoadTargetInfo {
     try {
-        $Tar
+        $TargetInfo = (Get-Content -Path "./Setting/TargetInfo.json") | ConvertFrom-Json
+        if ($null -ne $TargetInfo) {
+            $script:TargetUsername = $TargetInfo.Username
+            $script:Firstname = $script:TargetUsername.Split(".")[1]
+            $script:Lastname = $script:TargetUsername.Split(".")[2]
+            $script:TargetComputername = $TargetInfo.Computername
+            $script:TargetIP = $TargetInfo.IP
+            $script:TargetStatusNetwork = $TargetInfo.Network
+            $script:TargetStatusInternet = $TargetInfo.Internet
+        }
+        else {
+            Write-Host "[ERROR] : Cant Load Target Info" -ForegroundColor Red
+        }
     }
     catch {
-        
+        Write-Host "[ERROR] : Cant Load Target Info : Error Message : $($_.Exception.Message)" -ForegroundColor Red        
     }
 }
 
@@ -288,10 +301,25 @@ function RunSelectedItem {
     Write-Host "In RunSelectedItem"
     $ScriptContent = Get-Content -Path ($script:MethodPathScriptList[($ItemNumber -as [int]) - 1]) -Raw
     $ScriptBlock = [ScriptBlock]::Create($ScriptContent)
-    & $ScriptBlock -value "123"
+    & $ScriptBlock `
+        -TargetUsername ($script:TargetUsername) `
+        -TargetComputerName ($script:TargetComputername) `
+        -TargetFirstname ($script:TargetUsername.Split(".")[0]) `
+        -TargetLastname ($script:TargetUsername.Split(".")[1]) `
+        -TargetIP ($script:TargetIP) `
+        -TargetStatusNetwork ($script:TargetStatusNetwork) `
+        -TargetStatusInternet ($script:TargetStatusInternet)  
+
     Write-Host "[INFO] Script Closed , Press Any Key to Back Menu ..." -ForegroundColor Yellow 
     Read-Host
     ClearHostTimed
+}
+
+function ShowUserInfo {
+    Write-Host
+    Write-Host "[User] Username        : " -NoNewline -ForegroundColor Yellow
+    write-host " $($script:Username)" -ForegroundColor Green
+    Write-Host
 }
 
 
@@ -313,6 +341,7 @@ function Main {
             ShowWellcomeMenu
 
             # ShowLocalNetworkIdentify
+            ShowUserInfo
             ShowTargetInfo
 
             $CountItem = LoadMenuItem

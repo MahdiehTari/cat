@@ -1,19 +1,19 @@
 $ColorTextData = @{
     PromptError       = @{
         Text       = "[ERROR] : Enter a Valid Type of Identifier. Example : Username , ComputerName , IPv4"
-        ConfigText = "10,Yellow|12,Yellow|14,Yellow"
+        ConfigText = "11,Yellow|13,Yellow|15,Yellow"
     }
     PromptHelpExit    = @{
         Text       = "[HELP] : For Exit , Type Exit or Cancel or Clear or 0 :)"
-        ConfigText = "7,Blue|10,Blue|12,Blue|14,Blue|16,Blue"
+        ConfigText = "4,Red|7,Blue|9,Blue|11,Blue|13,Blue"
     }
     PromptInputTarget = @{
         Text       = "[INPUT] : Enter ( Username or Computername or IPv4 )"
-        ConfigText = "7,Yellow|9,Yellow|11,Yellow"
+        ConfigText = "5,Yellow|7,Yellow|9,Yellow"
     }
     PromptAccept      = @{
         Text       = "[INPUT] : Are You Accept this Traget ? ( Accept : 'Yes' or 'Y' , Test & Accept : 'Test' or 'YT' , Don't Accept : 'No' or 'N' )"
-        ConfigText = "7,Blue|9,Yellow|12,Green|14,Green|16,Green|18,Blue|19,Blue|20,Blue|22,Blue|24,Blue|26,Red|27,Red|29,Red|31,Red"
+        ConfigText = "5,Blue|7,Yellow|10,Green|12,Green|14,Green|16,Blue|17,Blue|18,Blue|20,Blue|22,Blue|24,Red|25,Red|27,Red|29,Red"
     }
 }
  
@@ -206,11 +206,12 @@ while ($RunLoop) {
                     }
                     else {
                         Write-Host "[INFO]    : Don't Accepted Target !" -ForegroundColor Yellow
+                        continue
                     }
 
                 }
                 else {
-                    Write-Host "[INFO]    : Find $($TargetData.Length) Username Like Your Input" -ForegroundColor Yellow
+                    Write-Host "[INFO] : Find $($TargetData.Length) Username Like Your Input" -ForegroundColor Yellow
 
                     Write-Host
                     for ($index = 0; $index -lt $TargetData.Length; $index += 1) {
@@ -218,16 +219,20 @@ while ($RunLoop) {
                     }
                     Write-Host
 
-                    Write-Host "[HELP]    : Select Currect Target From List !"
+                    Write-Host "[HELP] : Select Currect Target From List !"
                     MakeColorPrompt -Text $ColorTextData.PromptHelpExit.Text -ConfigText $ColorTextData.PromptHelpExit.ConfigText
                     $RunLoop1 = $true
                     while ($RunLoop1) {
-                        Write-Host "[INPUT]   : Enter Target Number " -NoNewline
+                        Write-Host "[INPUT] : Enter Target Number " -NoNewline
                         $TargetSelectedNumber = Read-Host " "
                         if ($null -ne ($TargetSelectedNumber -as [int])) {
+    
                             if ((($TargetSelectedNumber -as [int]) -gt 0) -and (($TargetSelectedNumber -as [int]) -le $TargetData.Length)) {
+                                
+                                $TargetDataSelected = $TargetData[($TargetSelectedNumber -as [int]) - 1]
 
-                                $TargetDataSelected = $TargetData[($TargetSelectedNumber -as [int])]
+                                Write-Host "[SUCCESS] : Selected $($TargetSelectedNumber -as [int])) , Username : $($TargetDataSelected.Description) , Computername : $($TargetDataSelected.Name) , IPv4 : $($TargetDataSelected.IPv4Address)" -ForegroundColor Green
+
 
                                 MakeColorPrompt -Text $ColorTextData.PromptAccept.Text -ConfigText $ColorTextData.PromptAccept.ConfigText -NoNewLine
                                 $ResponseAccept = Read-Host " "
@@ -292,12 +297,11 @@ while ($RunLoop) {
                                 }
                                 else {
                                     Write-Host "[INFO]    : Don't Accepted Target !" -ForegroundColor Yellow
+                                    $RunLoop1 = $false
                                 }
                             }
                         }
                     }
-                    
-                    Read-Host 
                 }
             }
             else {
@@ -307,7 +311,7 @@ while ($RunLoop) {
 
             $RunLoop = $false
             break
-
+            
         }
 
 
