@@ -317,7 +317,7 @@ function RunSelectedItem {
 
 function ShowUserInfo {
     Write-Host
-    Write-Host "[User] Username        : " -NoNewline -ForegroundColor Yellow
+    Write-Host "Authentication Username        : " -NoNewline -ForegroundColor Yellow
     write-host " $($script:Username)" -ForegroundColor Green
     Write-Host
 }
