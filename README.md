@@ -1,4 +1,4 @@
-Box PowerShell Example##CAT
+#CAT
 ======================
 This project provid CAT PowerShell script to the following actions:
 * Get 2 specifc user from CLI (User & Target).
